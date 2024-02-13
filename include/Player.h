@@ -3,20 +3,16 @@
 #include "CardSet.h"
 #include "Deck.h"
 
-
+namespace player {
+	using namespace card;
+	using namespace deck;
 
 class Player {
 public:
-	static std::string getRandomName(std::mt19937& re);
-	CardSet hand;
-	std::string name;
 	Player(std::string name = ""): name(name){
 		iCanBeat.reserve(27);
 		iCanToss.reserve(27);
 	}
-	
-	mutable std::vector<int> iCanBeat;
-	mutable std::vector<int> iCanToss;
 	const bool canIBeat(const Card&) const;
 	const bool canIToss(const CardSet&) const;
 	
@@ -24,7 +20,9 @@ public:
 	void takeCards(Deck&);
 	void takeAll(CardSet&);
 
+	const std::string& getName() const;
 	int getSmallestTrump() const;
+	int getCardCount() const;
 
 	void viewHand() const;
 	void viewPossibleBeat() const;
@@ -34,6 +32,15 @@ public:
 	virtual Card defend() = 0;
 	virtual bool pass()   = 0;
 	virtual bool giveUp() = 0;
+
+protected:
+	static std::string getRandomName(std::mt19937& re);
+	mutable std::vector<int> iCanBeat;
+	mutable std::vector<int> iCanToss;
+	CardSet hand;
+
+private:
+	std::string name;
 };
 
 class Human : public Player {
@@ -55,7 +62,10 @@ public:
 	Card defend() override;
 	bool pass()   override;
 	bool giveUp() override;
-	// TODO: minCard(CardSet);
+
+private:
 	std::mt19937& re;
 	int minPossibleCard(const std::vector<int>) const;
 };
+
+}

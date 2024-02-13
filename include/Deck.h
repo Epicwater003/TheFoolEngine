@@ -6,18 +6,20 @@
 #include <algorithm>
 #include <random>
 
+namespace deck {
+	using namespace card;
+	using namespace cardset;
 
 class Deck {
+	typedef CardSet::iterator iterator;
 public:
 	Deck(std::mt19937& re);
-	Card& chooseTrumpCard();
 	Card getCard();
-	void shuffle();
-	friend int main();
 	void viewDeck() const;
-	int cardsCount() const;
-	typedef CardSet::iterator iterator;
 
+	int getCardsCount() const;
+	const Card& getTrump() const;
+	
 	iterator begin() {
 		return cards.begin();
 	}
@@ -26,8 +28,11 @@ public:
 		return cards.end();
 	}
 private:
+	const Card& chooseTrumpCard() const;
+	void shuffle();
 	mutable std::unique_ptr<Card> trumpCard;
-	CardSet cards;
-	
+	mutable CardSet cards;
 	std::mt19937& re;
 };
+
+}

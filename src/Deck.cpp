@@ -1,38 +1,41 @@
-#include "Deck.h"
+#include "../include/Deck.h"
+
+namespace deck {
+
 
 Deck::Deck(std::mt19937& re): re(re) {
+	using card::Suit;
 	cards.reserve(54);
-	for (auto& suit : {Suit::Heart, Suit::Diamod, Suit::Clover, Suit::Pike}) {
+	for (auto& suit : { Suit::Heart, Suit::Diamod, Suit::Clover, Suit::Pike}) {
 		for (int rank = 6; rank <= 14; ++rank) {
-			cards.push_back(Card(rank, suit));
+			cards.push_back(Card::Card(rank, suit));
 		}
 	}
 	shuffle();
 	chooseTrumpCard();
 }
 
-Card& Deck::chooseTrumpCard(){
+const Card& Deck::chooseTrumpCard() const{
 	if (trumpCard) {
 		return *trumpCard;
 	}
-	for (auto card = cards.begin(); card != cards.end(); ++card) {
-		if (card->rank != 14) {
-			trumpCard = std::make_unique<Card>(*card);
-			trumpCard->isTrump = true;
-			cards.erase(card);
+	for (size_t i = 0, s = cards.size(); i < s; ++i) {
+		if (cards[i].getRank() != 14) {
+			trumpCard = std::make_unique<Card>(cards[i]);
+			trumpCard->setTrump(true);
+			cards.erase(cards.begin() + i);
 			break;
 		}
 	}
-	std::cout << "deck trump change to trump" << std::endl;
 	for (auto& card : cards) {
-		if (card.suit == trumpCard->suit) {
-			card.isTrump = true;
+		if (card.getSuit() == trumpCard->getSuit()) {
+			card.setTrump(true);
 		}
 	}
 	return *trumpCard;
 }
 
-Card Deck::getCard() {
+Card Deck::getCard(){ // TODO: rewrite copy to move 
 	if (!trumpCard) {
 		std::cout << "Cards in deck out!" << std::endl;
 		throw "Cards out!";
@@ -59,6 +62,12 @@ void Deck::viewDeck() const {
 	}
 	std::cout << std::endl;
 }
-int Deck::cardsCount() const {
+int Deck::getCardsCount() const {
 	return cards.size() + (trumpCard?1:0);
+}
+const Card& Deck::getTrump() const {
+	return *trumpCard;
+}
+
+
 }

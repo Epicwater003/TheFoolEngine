@@ -1,4 +1,6 @@
-﻿#include "Player.h"
+﻿#include "../include/Player.h"
+
+namespace player {
 
 std::string Player::getRandomName(std::mt19937& re) {
 	std::string ab = "ABCDEF123456789";
@@ -30,7 +32,7 @@ const bool Player::canIToss(const CardSet& cards) const {
 	}
 	for (size_t i = 0, s = hand.size(); i < s; ++i) {
 		for (auto& card : cards) {
-			if (card.rank == hand[i].rank) {
+			if (card.getRank() == hand[i].getRank()) {
 				iCanToss.push_back(i);
 				break;
 			}
@@ -47,7 +49,7 @@ void Player::takeCard(Deck& deck) {
 }
 void Player::takeCards(Deck& deck) {
 	while (hand.size() < 6) {
-		if (!deck.cardsCount()) {
+		if (!deck.getCardsCount()) {
 			std::cout << "Player " << name << " can't take card. Deck out!" << std::endl;
 			return;
 		}
@@ -61,15 +63,23 @@ void Player::takeAll(CardSet& cards) {
 	}
 }
 
+const std::string& Player::getName() const {
+	return name;
+}
+
 int Player::getSmallestTrump() const {
 	// TODO: refactor this piece
 	int rank = 100;
 	for (auto& card : hand) {
-		if (card.isTrump && (card.rank < rank)) {
-			rank = card.rank;
+		if (card.isTrump() && (card.getRank() < rank)) {
+			rank = card.getRank();
 		}
 	}
 	return rank;
+}
+
+int Player::getCardCount() const {
+	return hand.size();
 }
 
 
@@ -95,6 +105,8 @@ void Player::viewPossibleToss() const {
 
 
 Card Human::attack() {
+	std::cout << "You can attack with: " << std::endl;
+	viewPossibleToss();
 	std::cout << "Input number of card to toss: " << std::endl;
 	int ans;
 	while (true) {
@@ -105,11 +117,14 @@ Card Human::attack() {
 		std::cout << "Can't attack with that card" << std::endl;
 	}
 	Card c = hand[ans];
-	std::cout << name << " use " << c << " to attack!" << std::endl;
+	
 	hand.erase(hand.begin() + ans);
 	return c;
 }
 Card Human::defend() {
+	std::cout << "You can defend with: " << std::endl;
+	viewPossibleBeat();
+
 	std::cout << "Input number of card to beat: " << std::endl;
 	int ans;
 	while (true) {
@@ -120,52 +135,59 @@ Card Human::defend() {
 		std::cout << "Can't beat with that card" << std::endl;
 	}
 	Card c = hand[ans];
-	std::cout << name << " use " << c << " to defend!" << std::endl;
 	hand.erase(hand.begin() + ans);
 	return c;
 }
 bool Human::pass() {
-	std::cout << "Pass? any - yes/ nothing - no: " << std::endl;
-	std::string ans;
-	std::cin >> ans;
-	if (ans.empty())
-		return false;
-	return true;
+	std::cout << "Pass? y/n: " << std::endl;
+	char ans;
+	bool a;
+	do { // TODO: refactor to check function
+		std::cin >> ans;
+		if (ans == 'y') {
+			a = true;
+			break;
+		}
+		else if (ans == 'n') {
+			a = false;
+			break;
+		}
+		else {
+			std::cout << "Wrong input!" << std::endl;
+		}
+	} while (true);
+	return a;
 }
 bool Human::giveUp() {
-	std::cout << "Give up? any - yes/ nothing - no: " << std::endl;
-	std::string ans;
-	std::cin >> ans;
-	if (ans.empty())
-		return false;
-	return true;
+	std::cout << "Give up? y/n: " << std::endl;
+	char ans;
+	bool a;
+	do { // TODO: refactor to check function
+		std::cin >> ans;
+		if (ans == 'y') {
+			a = true;
+			break;
+		}
+		else if (ans == 'n') {
+			a = false;
+			break;
+		}
+		else {
+			std::cout << "Wrong input!" << std::endl;
+		}
+	} while (true);
+	return a;
 }
 
 Card Computer::defend() {
 	int ans = minPossibleCard(iCanBeat);
 	Card c = hand[ans];
-
-	/*std::cout << name << " use ";
-	std::ios state(nullptr);
-	state.copyfmt(std::cout);
-	std::cout << std::setw(2) << c;
-	std::cout.copyfmt(state);
-	std::cout << " to defend!" << std::endl;*/
-
 	hand.erase(hand.begin() + ans);
 	return c;
 }
 Card Computer::attack() {
 	int ans = minPossibleCard(iCanToss);
 	Card c = hand[ans];
-
-	/*std::cout << name << " use ";
-	std::ios state(nullptr);
-	state.copyfmt(std::cout);
-	std::cout << std::setw(2) << c;
-	std::cout.copyfmt(state);
-	std::cout << " to attack!" << std::endl;*/
-
 	hand.erase(hand.begin() + ans);
 	return c;
 }
@@ -173,8 +195,7 @@ bool Computer::pass() {
 	if (iCanToss.empty()) {
 		return false;
 	}
-	if (hand[minPossibleCard(iCanToss)].isTrump) {
-		
+	if (hand[minPossibleCard(iCanToss)].isTrump()) {
 		std::uniform_int_distribution<> dist(0, 1);
 		return dist(re);
 	}
@@ -185,8 +206,8 @@ bool Computer::giveUp() {
 		return false;
 	}
 	Card c = hand[minPossibleCard(iCanBeat)];
-	if (c.isTrump) {
-		std::uniform_int_distribution<> dist(6, c.rank);
+	if (c.isTrump()) {
+		std::uniform_int_distribution<> dist(6, c.getRank());
 		return dist(re) > 11 ? true : false;
 	}
 	return false;
@@ -196,17 +217,19 @@ int Computer::minPossibleCard(const std::vector<int> ixs) const {
 	Card card = hand[ixs[0]];
 	int index = ixs[0];
 	for (auto i : ixs) {
-		if ((hand[i].isTrump && card.isTrump) || (!hand[i].isTrump && !card.isTrump)) {
-			if (hand[i].rank < card.rank) {
+		if ((hand[i].isTrump() && card.isTrump()) || (!hand[i].isTrump() && !card.isTrump())) {
+			if (hand[i].getRank() < card.getRank()) {
 				card = hand[i];
 				index = i;
 			}
 		}
-		if (!hand[i].isTrump && card.isTrump) {
+		if (!hand[i].isTrump() && card.isTrump()) {
 			card = hand[i];
 			index = i;
 		}
 		
 	}
 	return index;
+}
+
 }
