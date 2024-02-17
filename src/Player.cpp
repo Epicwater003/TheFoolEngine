@@ -1,6 +1,6 @@
 ﻿#include "../include/Player.h"
 
-namespace player {
+namespace thefoolengine {
 
 std::string Player::getRandomName(std::mt19937& re) {
 	std::string ab = "ABCDEF123456789";
@@ -23,6 +23,7 @@ const bool Player::canIBeat(const Card& card) const {
 }
 
 const bool Player::canIToss(const CardSet& cards) const {
+	
 	iCanToss.clear();
 	if (cards.empty()) {
 		for (size_t i = 0, s = hand.size(); i < s; ++i) {

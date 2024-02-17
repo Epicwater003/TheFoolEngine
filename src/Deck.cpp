@@ -1,10 +1,9 @@
 #include "../include/Deck.h"
 
-namespace deck {
+namespace thefoolengine {
 
 
 Deck::Deck(std::mt19937& re): re(re) {
-	using card::Suit;
 	cards.reserve(54);
 	for (auto& suit : { Suit::Heart, Suit::Diamod, Suit::Clover, Suit::Pike}) {
 		for (int rank = 6; rank <= 14; ++rank) {

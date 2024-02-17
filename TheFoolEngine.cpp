@@ -9,10 +9,7 @@
 #include "include/Player.h"
 
 using namespace std;
-using deck::Deck;
-using card::Card, card::Suit;
-using cardset::CardSet;
-using player::Player, player::Computer, player::Human;
+using namespace thefoolengine;
 
 
 class Players {

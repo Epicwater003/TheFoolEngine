@@ -3,8 +3,7 @@
 #include "Card.h"
 #include <vector>
 
-namespace cardset {
-	using namespace card;
+namespace thefoolengine {
 
 using CardSet = std::vector<Card>;
 

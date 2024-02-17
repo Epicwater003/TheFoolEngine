@@ -3,7 +3,7 @@
 #include <iostream>
 #include <iomanip>
 
-namespace card {
+namespace thefoolengine {
 
 enum class Suit: uint8_t {
 	Heart = 3,

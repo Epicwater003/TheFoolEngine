@@ -3,9 +3,7 @@
 #include "CardSet.h"
 #include "Deck.h"
 
-namespace player {
-	using namespace card;
-	using namespace deck;
+namespace thefoolengine {
 
 class Player {
 public:

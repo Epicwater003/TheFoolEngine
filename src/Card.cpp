@@ -1,6 +1,6 @@
 #include "../include/Card.h"
 
-namespace card {
+namespace thefoolengine {
 
 bool Card::operator<(const Card& r_card) const {
 	if (this->suit != r_card.suit && !r_card.isTrump()){
@@ -39,4 +39,4 @@ std::ostream& operator<<(std::ostream& os, const Card& card) {
 	return os;
 }
 
-} // Card namespace end 
+}

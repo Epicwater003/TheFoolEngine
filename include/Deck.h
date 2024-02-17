@@ -6,9 +6,7 @@
 #include <algorithm>
 #include <random>
 
-namespace deck {
-	using namespace card;
-	using namespace cardset;
+namespace thefoolengine {
 
 class Deck {
 	typedef CardSet::iterator iterator;
