@@ -4,7 +4,6 @@
 #include "Deck.h"
 
 namespace thefoolengine {
-
 class Player {
 public:
 	Player(std::string name = ""): name(name){
