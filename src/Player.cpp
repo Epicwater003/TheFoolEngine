@@ -64,6 +64,10 @@ void Player::takeAll(CardSet& cards) {
 	}
 }
 
+void Player::dropCards() {
+	hand.clear();
+}
+
 const std::string& Player::getName() const {
 	return name;
 }

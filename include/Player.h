@@ -16,6 +16,7 @@ public:
 	void takeCard(Deck&);
 	void takeCards(Deck&);
 	void takeAll(CardSet&);
+	void dropCards(); // TODO: return cards on hand before drop
 
 	const std::string& getName() const;
 	int getSmallestTrump() const;
