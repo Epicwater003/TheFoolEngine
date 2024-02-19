@@ -12,9 +12,18 @@ using namespace std;
 using namespace thefoolengine;
 
 int main() {
+
+	/*addplayers;
+	newgame;
+	while (!gameEnd) {
+		doTurn();
+		checkWin();
+	}*/
+
+
 	// Create random engine
-	auto seed = random_device();
-	std::mt19937 re(seed());
+	auto seed = random_device()();
+	std::mt19937 re(seed);
 
 	cout << "@@@@@@@@@@@@@@@ Game start! @@@@@@@@@@@@@@@" << endl;
 	Deck deck(re);
@@ -77,19 +86,16 @@ int main() {
 
 		// Next player move
 		if (turn) {
-			//cout << " == Choosing next player == " << endl;
 			players.nextPlayerTurn();
 		}
 		// Set roles
-		//cout << " == Setting roles == " << endl;
 		Players::player_p attacker = players.getCurrentPlayer();
-		Players::c_iterator attaker_it = players.curr();
+		Players::c_iterator attacker_it = players.curr();
 		Players::player_p defender = players.getNextPlayer();
 		Players::c_iterator defender_it = players.next();
 
 			
 		// Take cards
-		//cout << " == Taking cards == " << endl;
 		if (deck.getCardsCount()) {
 			for (auto player : players) {
 				player->takeCards(deck);
@@ -98,7 +104,6 @@ int main() {
 		// View turn status
 		cout << " == Turn " << turn << " == Cards " << deck.getCardsCount() << "== Players " << players.players.size() << endl;
 		// View players status
-		//cout << " == Players == " << endl;
 		for (auto player : players) {
 			if (player == attacker) { cout << "--"; }
 			else if (player == defender) { cout << "->"; }
@@ -106,14 +111,13 @@ int main() {
 			player->viewHand();
 		}
 		// Do turn
-		//cout << " == Do turn == " << endl;
-		//for (int i = 0, s = (turn ? defender->hand.size() : 5); i < s; ++i) { // TODO: rewrite hardcoded ternary condition
+		
 		while (true) {
-			//
+			// 
 			if (!defender->getCardCount() || (!turn && (defender->getCardCount() == 1))) {
 				break;
 			}
-			// cout << "-- Subturn " << i << " -- To " << s << endl;
+			
 			// Attacker move
 			if (attacker->canIToss(field)) {
 				if (!field.empty() && attacker->pass()) {
@@ -133,7 +137,7 @@ int main() {
 			}
 			// Pitchers move
 			// TODO: If attacking player cannot make a move, then pitchers go
-			// Deffender move
+			// Defender move
 			if (defender->canIBeat(attackCard)) {
 				if (defender->giveUp()) {
 					std::cout << defender->getName() << " give up" << std::endl;
@@ -159,7 +163,7 @@ int main() {
 		if (!deck.getCardsCount()) {
 			if (!attacker->getCardCount()) {
 				cout << "#### Player " << attacker->getName() << " win! ####" << endl;
-				playersOut.push_back(attaker_it);
+				playersOut.push_back(attacker_it);
 			}
 			if (!defender->getCardCount()) {
 				cout << "#### Player " << defender->getName() << " win! ####" << endl;
@@ -180,7 +184,7 @@ int main() {
 				break;
 			}
 		}
-		// Clear field. Maybe to retreat
+		// Clear field. Maybe move to retreat
 		field.clear();
 		// Count turns
 		++turn;

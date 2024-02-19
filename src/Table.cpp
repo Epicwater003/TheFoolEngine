@@ -4,8 +4,19 @@
 
 namespace thefoolengine {
 
-void Table::newGame() {
-
+void Table::newGame() { // TODO: mb need another function name like replay?
+	turn = 0;
+	for (auto player : players) {
+		player->dropCards();
+	}
+	deck = std::make_unique<Deck>(seed);
+}
+void Table::newGame(Seed seed) {
+	turn = 0;
+	for (auto player : players) {
+		player->dropCards();
+	}
+	deck = std::make_unique<Deck>(seed);
 }
 void Table::doTurn() {
 

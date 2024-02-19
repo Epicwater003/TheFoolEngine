@@ -3,6 +3,7 @@
 #include "Deck.h"
 #include "Player.h"
 #include <list>
+#include <random>
 
 namespace thefoolengine {
 
@@ -13,12 +14,30 @@ enum class PlayerType {
 
 class Table {
 public:
-	Deck deck;
+	using deck_p = std::unique_ptr<Deck>;
+	using Seed = std::random_device::result_type;
+
+	deck_p deck;
+	Players players;
+	Seed seed;
+	uint32_t turn;
+
+	Table(Seed seed): seed(seed), turn(0) {
+		deck = std::make_unique<Deck>(seed);
+	}
+	
 	void newGame();
+	void newGame(Seed seed);
+	
 	void doTurn();
+	void doSubTurn();
+	void checkGameEnd();
 
 	void addPlayer(PlayerType type);
 	void addPlayer(Player& player);
+
+	bool gameEnd();
+
 	
 };
 
