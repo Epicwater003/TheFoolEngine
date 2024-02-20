@@ -12,35 +12,6 @@ enum class PlayerType {
 	Player,
 };
 
-class Table {
-public:
-	using deck_p = std::unique_ptr<Deck>;
-	using Seed = std::random_device::result_type;
-
-	deck_p deck;
-	Players players;
-	Seed seed;
-	uint32_t turn;
-
-	Table(Seed seed): seed(seed), turn(0) {
-		deck = std::make_unique<Deck>(seed);
-	}
-	
-	void newGame();
-	void newGame(Seed seed);
-	
-	void doTurn();
-	void doSubTurn();
-	void checkGameEnd();
-
-	void addPlayer(PlayerType type);
-	void addPlayer(Player& player);
-
-	bool gameEnd();
-
-	
-};
-
 class Players {
 public:
 	using player_p = std::shared_ptr<Player>;
@@ -63,4 +34,50 @@ public:
 	void skipPlayerTurn();
 	void erasePlayer(c_iterator ord);
 };
+
+class Table {
+public:
+	using Seed = std::random_device::result_type;
+
+	Deck deck;
+	std::mt19937 re;
+	std::vector<Players::c_iterator> playersOut;
+	CardSet field;
+	Card attackCard;
+	Card defendCard;
+	Players players;
+	Seed seed;
+	uint32_t turn;
+
+	Table(Seed seed): 
+		seed(seed),
+		re(seed),
+		deck(re),
+		turn(0),
+		attackCard(0, Suit::Clover),
+		defendCard(0, Suit::Clover)
+	{}
+	Table(std::mt19937& re) :
+		seed(0),
+		re(re),
+		deck(re),
+		turn(0),
+		attackCard(0, Suit::Clover),
+		defendCard(0, Suit::Clover)
+	{}
+
+	
+	void newGame();
+	void newGame(Seed seed);
+	
+	void doTurn();
+
+	//void addPlayer(PlayerType type);
+	void addPlayer(Player* player);
+
+	bool gameEnd();
+
+	
+};
+
 }

@@ -5,30 +5,141 @@
 namespace thefoolengine {
 
 void Table::newGame() { // TODO: mb need another function name like replay?
-	turn = 0;
-	for (auto player : players) {
-		player->dropCards();
-	}
-	deck = std::make_unique<Deck>(seed);
+	newGame(seed);
 }
 void Table::newGame(Seed seed) {
 	turn = 0;
+
 	for (auto player : players) {
 		player->dropCards();
 	}
-	deck = std::make_unique<Deck>(seed);
+
+	re.seed(seed);
+	deck.refill(re);
+
+	for (auto player : players) {
+		player->takeCards(deck);
+	}
+
+	players.chooseFistPlayer();
 }
 void Table::doTurn() {
+	if (turn) {
+		players.nextPlayerTurn();
+	}
+	// Set roles
+	Players::player_p attacker = players.getCurrentPlayer();
+	Players::c_iterator attacker_it = players.curr();
+	Players::player_p defender = players.getNextPlayer();
+	Players::c_iterator defender_it = players.next();
 
+
+	// Take cards
+	if (deck.getCardsCount()) {
+		for (auto player : players) {
+			player->takeCards(deck);
+		}
+	}
+	// View turn status
+	std::cout << " == Turn " << turn << " == Cards " << deck.getCardsCount() << "== Players " << players.players.size() << std::endl;
+	// View players status
+	for (auto player : players) {
+		if (player == attacker) { std::cout << "--"; }
+		else if (player == defender) { std::cout << "->"; }
+		else { std::cout << "  "; }
+		player->viewHand();
+	}
+	// Do turn
+
+	while (true) {
+		// 
+		if (!defender->getCardCount() || (!turn && (defender->getCardCount() == 1))) {
+			break;
+		}
+
+		// Attacker move
+		if (attacker->canIToss(field)) {
+			if (!field.empty() && attacker->pass()) {
+				std::cout << attacker->getName() << " pass" << std::endl;
+				break;
+			}
+			else {
+				attackCard = attacker->attack();
+				std::cout << attacker->getName() << " use " << attackCard << " to attack!" << std::endl;
+				field.push_back(attackCard);
+			}
+		}
+		else {
+
+			std::cout << attacker->getName() << " can't attack" << std::endl;
+			break; // there a condition for pitchers
+		}
+		// Pitchers move
+		// TODO: If attacking player cannot make a move, then pitchers go
+		// Defender move
+		if (defender->canIBeat(attackCard)) {
+			if (defender->giveUp()) {
+				std::cout << defender->getName() << " give up" << std::endl;
+				defender->takeAll(field);
+				players.skipPlayerTurn(); // Player skips turn if give up
+				break;
+			}
+			else {
+				defendCard = defender->defend();
+				std::cout << defender->getName() << " use " << defendCard << " to defend!" << std::endl;
+				field.push_back(defendCard);
+			}
+		}
+		else {
+
+			std::cout << defender->getName() << " can't defend" << std::endl;
+			defender->takeAll(field);
+			players.skipPlayerTurn(); // Player skips turn if can't defend
+			break;
+		}
+	}
+	std::cout << " == Turn end == " << std::endl;
+	if (!deck.getCardsCount()) {
+		if (!attacker->getCardCount()) {
+			std::cout << "#### Player " << attacker->getName() << " win! ####" << std::endl;
+			playersOut.push_back(attacker_it);
+		}
+		if (!defender->getCardCount()) {
+			std::cout << "#### Player " << defender->getName() << " win! ####" << std::endl;
+			playersOut.push_back(defender_it);
+		}
+		// Let players out
+		for (const auto& player : playersOut) {
+			players.erasePlayer(player);
+		}
+		playersOut.clear();
+		
+	}
+	// Clear field. Maybe move to retreat
+	field.clear();
+	// Count turns
+	++turn;
 }
 
-void Table::addPlayer(PlayerType type) {
-
+//void Table::addPlayer(PlayerType type) {
+//
+//}
+void Table::addPlayer(Player* player) {
+	players.addPlayer(player);
 }
-void Table::addPlayer(Player& player) {
 
+bool Table::gameEnd() {
+	// Check players
+	if (players.players.size() == 1) {
+		std::cout << "#### Player " << players.players.front()->getName() << " fool! ####" << std::endl;
+		return true;
+	}
+	if (players.players.size() == 0) {
+		std::cout << "#### The game ended in a draw ####" << std::endl;
+		return true;
+	}
+	return false;
 }
-
 }
 
 

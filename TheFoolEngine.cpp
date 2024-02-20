@@ -25,6 +25,15 @@ int main() {
 	auto seed = random_device()();
 	std::mt19937 re(seed);
 
+	Table table(re);
+	table.addPlayer(new Computer(re));
+	table.addPlayer(new Computer(re));
+	while (!table.gameEnd())
+	{
+		table.doTurn();
+	}
+
+	/*
 	cout << "@@@@@@@@@@@@@@@ Game start! @@@@@@@@@@@@@@@" << endl;
 	Deck deck(re);
 	CardSet field;
@@ -194,6 +203,7 @@ int main() {
 	cout << "@@@@@@@@@@@@@@@ Game end! @@@@@@@@@@@@@@@" << endl;
 	int ack;
 	std::cin >> ack;
+	*/
 }
 
 
