@@ -4,12 +4,7 @@ namespace thefoolengine {
 
 
 Deck::Deck(std::mt19937& re): re(re) {
-	cards.reserve(54);
-	for (auto& suit : { Suit::Heart, Suit::Diamod, Suit::Clover, Suit::Pike}) {
-		for (int rank = 6; rank <= 14; ++rank) {
-			cards.push_back(Card::Card(rank, suit));
-		}
-	}
+	fill();
 	shuffle();
 	chooseTrumpCard();
 }
@@ -68,5 +63,25 @@ const Card& Deck::getTrump() const {
 	return *trumpCard;
 }
 
+void Deck::refill() {
+	refill(re);
+}
+void Deck::refill(std::mt19937& re) {
+	this->re = re;
+	cards.clear();
+	trumpCard = nullptr;
+	fill();
+	shuffle();
+	chooseTrumpCard();
+}
+
+void Deck::fill() {
+	cards.reserve(54);
+	for (auto& suit : { Suit::Heart, Suit::Diamod, Suit::Clover, Suit::Pike }) {
+		for (int rank = 6; rank <= 14; ++rank) {
+			cards.push_back(Card::Card(rank, suit));
+		}
+	}
+}
 
 }

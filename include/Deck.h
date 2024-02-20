@@ -17,7 +17,11 @@ public:
 
 	int getCardsCount() const;
 	const Card& getTrump() const;
+	void refill();
+	void refill(std::mt19937& re);
+	void fill();
 	
+private:
 	iterator begin() {
 		return cards.begin();
 	}
@@ -25,7 +29,6 @@ public:
 	iterator end() {
 		return cards.end();
 	}
-private:
 	const Card& chooseTrumpCard() const;
 	void shuffle();
 	mutable std::unique_ptr<Card> trumpCard;
