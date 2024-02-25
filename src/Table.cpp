@@ -23,15 +23,15 @@ void Table::newGame(Seed seed) {
 
 	players.chooseFistPlayer();
 }
-void Table::doTurn() {
+void Table::doTurn(const TurnStatusF& turnStart, const MoveStatusF& attackerMove, const MoveStatusF& defenderMove) {
 	if (turn) {
 		players.nextPlayerTurn();
 	}
 	// Set roles
 	Players::player_p attacker = players.getCurrentPlayer();
-	Players::c_iterator attacker_it = players.curr();
+	
 	Players::player_p defender = players.getNextPlayer();
-	Players::c_iterator defender_it = players.next();
+	
 
 
 	// Take cards
@@ -41,7 +41,7 @@ void Table::doTurn() {
 		}
 	}
 	// View turn status
-	std::cout << " == Turn " << turn << " == Cards " << deck.getCardsCount() << "== Players " << players.players.size() << std::endl;
+	//std::cout << " == Turn " << turn << " == Cards " << deck.getCardsCount() << "== Players " << players.players.size() << std::endl;
 	// View players status
 	for (auto player : players) {
 		if (player == attacker) { std::cout << "--"; }
@@ -60,18 +60,20 @@ void Table::doTurn() {
 		// Attacker move
 		if (attacker->canIToss(field)) {
 			if (!field.empty() && attacker->pass()) {
-				std::cout << attacker->getName() << " pass" << std::endl;
+				attackerMove(attacker, MoveType::Pass, nullptr);
+				//std::cout << attacker->getName() << " pass" << std::endl;
 				break;
 			}
 			else {
 				attackCard = attacker->attack();
-				std::cout << attacker->getName() << " use " << attackCard << " to attack!" << std::endl;
+				attackerMove(attacker, MoveType::Attack, &attackCard);
+				//std::cout << attacker->getName() << " use " << attackCard << " to attack!" << std::endl;
 				field.push_back(attackCard);
 			}
 		}
 		else {
-
-			std::cout << attacker->getName() << " can't attack" << std::endl;
+			attackerMove(attacker, MoveType::NoMove, nullptr);
+			//std::cout << attacker->getName() << " can't attack" << std::endl;
 			break; // there a condition for pitchers
 		}
 		// Pitchers move
@@ -79,25 +81,30 @@ void Table::doTurn() {
 		// Defender move
 		if (defender->canIBeat(attackCard)) {
 			if (defender->giveUp()) {
-				std::cout << defender->getName() << " give up" << std::endl;
+				defenderMove(defender, MoveType::GiveUp, nullptr);
+				//std::cout << defender->getName() << " give up" << std::endl;
 				defender->takeAll(field);
 				players.skipPlayerTurn(); // Player skips turn if give up
 				break;
 			}
 			else {
 				defendCard = defender->defend();
-				std::cout << defender->getName() << " use " << defendCard << " to defend!" << std::endl;
+				defenderMove(defender, MoveType::Defend, &defendCard);
+				//std::cout << defender->getName() << " use " << defendCard << " to defend!" << std::endl;
 				field.push_back(defendCard);
 			}
 		}
 		else {
-
-			std::cout << defender->getName() << " can't defend" << std::endl;
+			defenderMove(defender, MoveType::NoMove, nullptr);
+			//std::cout << defender->getName() << " can't defend" << std::endl;
 			defender->takeAll(field);
 			players.skipPlayerTurn(); // Player skips turn if can't defend
 			break;
 		}
 	}
+
+	Players::c_iterator attacker_it = players.curr();
+	Players::c_iterator defender_it = players.next();
 	std::cout << " == Turn end == " << std::endl;
 	if (!deck.getCardsCount()) {
 		if (!attacker->getCardCount()) {
