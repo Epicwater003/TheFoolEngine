@@ -11,8 +11,15 @@
 using namespace std;
 using namespace thefoolengine;
 
-
 int main() {
+
+	/*addplayers;
+	newgame;
+	while (!gameEnd) {
+		doTurn();
+		checkWin();
+	}*/
+
 
 	// Create random engine
 	auto seed = random_device()();
@@ -23,12 +30,7 @@ int main() {
 	table.addPlayer(new Computer(re));
 	while (!table.gameEnd())
 	{
-		
-		table.doTurn(
-			[](const Players::player_p a, const Players::player_p d, const Players& ps) { return; },
-			[](const Players::player_p a, MoveType m, const Card* c) { SimpleMoveHandler.at(m)(a->getName(), c); },
-			[](const Players::player_p d, MoveType m, const Card* c) { SimpleMoveHandler.at(m)(d->getName(), c); }
-		);
+		table.doTurn();
 	}
 
 	/*
