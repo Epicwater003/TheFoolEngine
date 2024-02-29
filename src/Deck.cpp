@@ -5,8 +5,8 @@ namespace thefoolengine {
 
 Deck::Deck(std::mt19937& re): re(re) {
 	fill();
-	shuffle();
-	chooseTrumpCard();
+	//shuffle();
+	//chooseTrumpCard();
 }
 
 const Card& Deck::chooseTrumpCard() const{
@@ -71,8 +71,8 @@ void Deck::refill(std::mt19937& re) {
 	cards.clear();
 	trumpCard = nullptr;
 	fill();
-	shuffle();
-	chooseTrumpCard();
+	//shuffle();
+	//chooseTrumpCard();
 }
 
 void Deck::fill() {

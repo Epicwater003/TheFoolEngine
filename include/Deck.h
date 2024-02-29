@@ -20,7 +20,8 @@ public:
 	void refill();
 	void refill(std::mt19937& re);
 	void fill();
-	
+	void shuffle();
+	const Card& chooseTrumpCard() const;
 private:
 	iterator begin() {
 		return cards.begin();
@@ -29,8 +30,8 @@ private:
 	iterator end() {
 		return cards.end();
 	}
-	const Card& chooseTrumpCard() const;
-	void shuffle();
+	
+	
 	mutable std::unique_ptr<Card> trumpCard;
 	mutable CardSet cards;
 	std::mt19937& re;
