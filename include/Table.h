@@ -4,6 +4,7 @@
 #include "Player.h"
 #include <list>
 #include <random>
+#include <functional>
 
 namespace thefoolengine {
 
@@ -23,6 +24,7 @@ public:
 	iterator begin();
 	iterator end();
 	void addPlayer(Player* player);
+	void addPlayer(std::shared_ptr<Player> player);
 	void chooseFistPlayer();
 	c_iterator curr();
 	c_iterator next() const;
@@ -48,13 +50,15 @@ public:
 	Players players;
 	Seed seed;
 	uint32_t turn;
+	std::function<void(std::string)> leaveHandler;
+	std::function<void(std::string)> foolHandler;
 
 	Table(Seed seed): 
 		seed(seed),
 		re(seed),
 		deck(re),
 		turn(0),
-		attackCard(0, Suit::Clover),
+		attackCard(0, Suit::Clover), // TODO: refactor 
 		defendCard(0, Suit::Clover)
 	{}
 	Table(std::mt19937& re) :
@@ -74,6 +78,7 @@ public:
 
 	//void addPlayer(PlayerType type);
 	void addPlayer(Player* player);
+	void addPlayer(std::shared_ptr<Player> player);
 
 	bool gameEnd();
 
