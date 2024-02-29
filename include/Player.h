@@ -32,7 +32,7 @@ public:
 	virtual bool giveUp() = 0;
 
 protected:
-	static std::string getRandomName(std::mt19937& re);
+	static std::string getRandomName(std::mt19937& re, int length = 10);
 	mutable std::vector<int> iCanBeat;
 	mutable std::vector<int> iCanToss;
 	CardSet hand;
@@ -50,20 +50,31 @@ public:
 	bool giveUp() override;
 };
 
-
-
 class Computer : public Player {
 public:
-	Computer(std::mt19937& re): Player(Player::getRandomName(re)), re(re){}
-	
+	Computer(std::mt19937& re) : Player(Player::getRandomName(re)), re(re) {}
+protected:
+	std::mt19937& re;
+	int minCard(const std::vector<int>) const;
+	int anyCard(const std::vector<int>) const;
+};
+
+class GreedyComputer : public Computer {
+public:
+	GreedyComputer(std::mt19937& re) : Computer(re) {};
 	Card attack() override;
 	Card defend() override;
 	bool pass()   override;
 	bool giveUp() override;
-
-private:
-	std::mt19937& re;
-	int minPossibleCard(const std::vector<int>) const;
 };
+class RandomComputer : public Computer {
+public:
+	RandomComputer(std::mt19937& re) : Computer(re) {};
+	Card attack() override;
+	Card defend() override;
+	bool pass()   override;
+	bool giveUp() override;
+};
+
 
 }

@@ -2,11 +2,11 @@
 
 namespace thefoolengine {
 
-std::string Player::getRandomName(std::mt19937& re) {
+std::string Player::getRandomName(std::mt19937& re, int length) {
 	std::string ab = "ABCDEF123456789";
 	std::uniform_int_distribution<> dist(0, ab.size() - 1);
-	std::string name = std::string(3, ab[0]);
-	std::generate_n(name.begin(), 3,
+	std::string name = std::string(length, ab[0]);
+	std::generate_n(name.begin(), length,
 		[&ab, &re, &dist]() { return ab[dist(re)]; }
 	);
 	return name;
@@ -51,7 +51,7 @@ void Player::takeCard(Deck& deck) {
 void Player::takeCards(Deck& deck) {
 	while (hand.size() < 6) {
 		if (!deck.getCardsCount()) {
-			std::cout << "Player " << name << " can't take card. Deck out!" << std::endl;
+			//std::cout << "Player " << name << " can't take card. Deck out!" << std::endl;
 			return;
 		}
 		takeCard(deck);
@@ -107,134 +107,4 @@ void Player::viewPossibleToss() const {
 	}
 	std::cout << std::endl;
 }
-
-
-Card Human::attack() {
-	std::cout << "You can attack with: " << std::endl;
-	viewPossibleToss();
-	std::cout << "Input number of card to toss: " << std::endl;
-	int ans;
-	while (true) {
-		std::cin >> ans;
-		if (std::find(iCanToss.begin(), iCanToss.end(), ans) != iCanToss.end()) {
-			break;
-		}
-		std::cout << "Can't attack with that card" << std::endl;
-	}
-	Card c = hand[ans];
-	
-	hand.erase(hand.begin() + ans);
-	return c;
-}
-Card Human::defend() {
-	std::cout << "You can defend with: " << std::endl;
-	viewPossibleBeat();
-
-	std::cout << "Input number of card to beat: " << std::endl;
-	int ans;
-	while (true) {
-		std::cin >> ans;
-		if (std::find(iCanBeat.begin(), iCanBeat.end(), ans) != iCanBeat.end()) {
-			break;
-		}
-		std::cout << "Can't beat with that card" << std::endl;
-	}
-	Card c = hand[ans];
-	hand.erase(hand.begin() + ans);
-	return c;
-}
-bool Human::pass() {
-	std::cout << "Pass? y/n: " << std::endl;
-	char ans;
-	bool a;
-	do { // TODO: refactor to check function
-		std::cin >> ans;
-		if (ans == 'y') {
-			a = true;
-			break;
-		}
-		else if (ans == 'n') {
-			a = false;
-			break;
-		}
-		else {
-			std::cout << "Wrong input!" << std::endl;
-		}
-	} while (true);
-	return a;
-}
-bool Human::giveUp() {
-	std::cout << "Give up? y/n: " << std::endl;
-	char ans;
-	bool a;
-	do { // TODO: refactor to check function
-		std::cin >> ans;
-		if (ans == 'y') {
-			a = true;
-			break;
-		}
-		else if (ans == 'n') {
-			a = false;
-			break;
-		}
-		else {
-			std::cout << "Wrong input!" << std::endl;
-		}
-	} while (true);
-	return a;
-}
-
-Card Computer::defend() {
-	int ans = minPossibleCard(iCanBeat);
-	Card c = hand[ans];
-	hand.erase(hand.begin() + ans);
-	return c;
-}
-Card Computer::attack() {
-	int ans = minPossibleCard(iCanToss);
-	Card c = hand[ans];
-	hand.erase(hand.begin() + ans);
-	return c;
-}
-bool Computer::pass() {
-	if (iCanToss.empty()) {
-		return false;
-	}
-	if (hand[minPossibleCard(iCanToss)].isTrump()) {
-		std::uniform_int_distribution<> dist(0, 1);
-		return dist(re);
-	}
-	return false;
-}
-bool Computer::giveUp() {
-	if (iCanBeat.empty()) {
-		return false;
-	}
-	Card c = hand[minPossibleCard(iCanBeat)];
-	if (c.isTrump()) {
-		std::uniform_int_distribution<> dist(6, c.getRank());
-		return dist(re) > 11 ? true : false;
-	}
-	return false;
-}
-
-int Computer::minPossibleCard(const std::vector<int> ixs) const {
-	Card card = hand[ixs[0]];
-	int index = ixs[0];
-	for (auto i : ixs) {
-		if ((hand[i].isTrump() && card.isTrump()) || (!hand[i].isTrump() && !card.isTrump())) {
-			if (hand[i].getRank() < card.getRank()) {
-				card = hand[i];
-				index = i;
-			}
-		}
-		if (!hand[i].isTrump() && card.isTrump()) {
-			card = hand[i];
-			index = i;
-		}
-		
-	}
-	return index;
-}
-
 }
