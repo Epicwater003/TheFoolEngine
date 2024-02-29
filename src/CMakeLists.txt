@@ -4,4 +4,8 @@ target_sources(TheFoolEngine
 		Deck.cpp
 		Player.cpp
 		Table.cpp
+		HumanPlayer.cpp
+		ComputerPlayer.cpp
+		GreedyComputer.cpp
+		RandomComputer.cpp
 )
