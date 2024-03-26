@@ -5,6 +5,7 @@
 #include <list>
 #include <random>
 #include <functional>
+#include <optional>
 
 namespace thefoolengine {
 
@@ -15,6 +16,7 @@ enum class PlayerType {
 
 class Players {
 public:
+    // TODO:: Refactor class
 	using player_p = std::shared_ptr<Player>;
 	using iterator = std::list<player_p>::iterator;
 	using c_iterator = std::list<player_p>::const_iterator;
@@ -23,7 +25,6 @@ public:
 	Players();
 	iterator begin();
 	iterator end();
-	void addPlayer(Player* player);
 	void addPlayer(std::shared_ptr<Player> player);
 	void chooseFistPlayer();
 	c_iterator curr();
@@ -48,16 +49,45 @@ public:
 	Card attackCard;
 	Card defendCard;
 	Players players;
-	Seed seed;
-	uint32_t turn;
-	std::function<void(std::string)> leaveHandler;
-	std::function<void(std::string)> foolHandler;
+	Seed seed = 0;
+	uint32_t turn = 0;
+	
+	// Called: on player added. 
+	// Passes: _1 player added
+	std::function<void(Players::player_p)> tablePlayerAdded;
 
-	Table(Seed seed): 
-		seed(seed),
-		re(seed),
+	// Called: on player leave table (win). 
+	// Passes: _1 player
+	std::function<void(Players::player_p)> tableLeave;
+
+	// Called: on new game or replay. 
+	// Passes: _1 player, who goes first
+	std::function<void(Players::player_p)> tableNewGame;
+
+	// Called: on end of game. 
+	// Passes: _1 optional player, if player exists - it's fool, also game ended in draw
+	std::function<void(std::optional<Players::player_p>)> tableGameEnd;
+
+	// Called: before every turn. 
+	// Passes: _1 turn, _2 Deck, _3 attacker, _4 defender
+	std::function<void(uint32_t, const Deck&, Players::player_p, Players::player_p)> turnBefore;
+	
+	// Called: after every turn. 
+	// Passes: _1 turn, _2 Deck, _3 attacker, _4 defender
+	std::function<void(uint32_t, const Deck&, Players::player_p, Players::player_p)> turnAfter;
+
+	// Called: on player attack. 
+	// Passes: _1 player, _2 Action, _3 optional card
+	std::function<void(Players::player_p, Player::Action, std::optional<Card>)> turnAttack;
+
+	// Called: on player defend. 
+	// Passes: _1 player, _2 Action, _3 optional card
+	std::function<void(Players::player_p, Player::Action, std::optional<Card>)> turnDefend;
+
+	
+
+	Table():
 		deck(re),
-		turn(0),
 		attackCard(0, Suit::Clover), // TODO: refactor 
 		defendCard(0, Suit::Clover)
 	{}
@@ -65,19 +95,17 @@ public:
 		seed(0),
 		re(re),
 		deck(re),
-		turn(0),
 		attackCard(0, Suit::Clover),
 		defendCard(0, Suit::Clover)
 	{}
 
 	
-	void newGame();
+	void replay();
 	void newGame(Seed seed);
 	
 	void doTurn();
 
 	//void addPlayer(PlayerType type);
-	void addPlayer(Player* player);
 	void addPlayer(std::shared_ptr<Player> player);
 
 	bool gameEnd();
