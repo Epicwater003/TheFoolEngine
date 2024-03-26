@@ -68,10 +68,6 @@ void Player::dropCards() {
 	hand.clear();
 }
 
-const std::string& Player::getName() const {
-	return name;
-}
-
 int Player::getSmallestTrump() const {
 	// TODO: refactor this piece
 	int rank = 100;

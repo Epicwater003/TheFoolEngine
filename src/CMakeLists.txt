@@ -7,5 +7,6 @@ target_sources(TheFoolEngine
 		HumanPlayer.cpp
 		ComputerPlayer.cpp
 		GreedyComputer.cpp
+		EGreedyComputer.cpp
 		RandomComputer.cpp
 )

@@ -4,8 +4,17 @@
 #include "Deck.h"
 
 namespace thefoolengine {
+
+
 class Player {
 public:
+	enum class Action {
+		Attack,
+		Pass,
+		Defend,
+		GiveUp,
+	};
+	std::string name;
 	Player(std::string name = ""): name(name){
 		iCanBeat.reserve(27);
 		iCanToss.reserve(27);
@@ -18,7 +27,6 @@ public:
 	void takeAll(CardSet&);
 	void dropCards(); // TODO: return cards on hand before drop
 
-	const std::string& getName() const;
 	int getSmallestTrump() const;
 	int getCardCount() const;
 
@@ -36,9 +44,6 @@ protected:
 	mutable std::vector<int> iCanBeat;
 	mutable std::vector<int> iCanToss;
 	CardSet hand;
-
-private:
-	std::string name;
 };
 
 class Human : public Player {
@@ -62,6 +67,14 @@ protected:
 class GreedyComputer : public Computer {
 public:
 	GreedyComputer(std::mt19937& re) : Computer(re) {};
+	Card attack() override;
+	Card defend() override;
+	bool pass()   override;
+	bool giveUp() override;
+};
+class EGreedyComputer : public Computer {
+public:
+	EGreedyComputer(std::mt19937& re) : Computer(re) {};
 	Card attack() override;
 	Card defend() override;
 	bool pass()   override;
