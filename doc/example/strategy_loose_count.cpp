@@ -13,53 +13,69 @@ using namespace thefoolengine;
 
 int main() {
 
-	vector<double> counter(6, 0.);
-
 	auto seed = random_device()();
 	std::mt19937 re(seed);
 
-	Table table(seed);
-
+	Table table;
+	auto egc1 = std::make_shared<GreedyComputer>(re);
 
 	auto gc1 = std::make_shared<GreedyComputer>(re);
-	auto gc2 = std::make_shared<GreedyComputer>(re);
-	auto gc3 = std::make_shared<GreedyComputer>(re);
-	auto gc4 = std::make_shared<GreedyComputer>(re);
-	auto gc5 = std::make_shared<GreedyComputer>(re);
+
 	auto rc1 = std::make_shared<RandomComputer>(re);
 
-	table.foolHandler = [&](std::string name) {
-		if (name == gc1->getName()) ++counter[0];
-		if (name == gc2->getName()) ++counter[1];
-		if (name == gc3->getName()) ++counter[2];
-		if (name == gc4->getName()) ++counter[3];
-		if (name == gc5->getName()) ++counter[4];
-		if (name == rc1->getName()) ++counter[5];
-
+	int64_t a = 0;
+	int64_t af = 0;
+	int64_t b = 0;
+	int64_t bf = 0;
+	int64_t c = 0;
+	int64_t cf = 0;
+	table.tableNewGame = [&](auto player) {
+		if (player == egc1)
+			++af;
+		if (player == gc1)
+			++bf;
+		if (player == rc1)
+			++cf;
 		};
-	for (int i = 0; i < 5; ++i) {
-
-		cout << "Test " << i << endl;
-		for (int i = 0; i < 1000; ++i) {
-			auto seed = random_device()();
-			for (int i = 0; i < 10; ++i) {
-				table.addPlayer(gc1);
-				table.addPlayer(gc2);
-				table.addPlayer(gc3);
-				table.addPlayer(gc4);
-				table.addPlayer(gc5);
-				table.addPlayer(rc1);
-				table.newGame(seed);
-				while (!table.gameEnd())
-				{
-					table.doTurn();
-				}
+	table.tableLeave = [&](auto player) {
+		if (player == egc1) {
+			++a;
+		}
+		if (player == gc1) {
+			++b;
+		}
+		if (player == rc1) {
+			++c;
+		}
+		};
+	table.tableGameEnd = [&](auto player) {
+		if (!player) {
+			--a;
+			--b;
+			--c;
+		}
+		};
+	//TODO:: figure out why player position in list affects on win rate...
+	for (int i = 0; i < 3333; ++i) {
+		seed = random_device()();
+		for (int o = 0; o < 4; ++o) {
+			//table.addPlayer(rc1);
+			table.addPlayer(egc1);
+			table.addPlayer(gc1);
+			table.newGame(seed);
+			while (!table.gameEnd())
+			{
+				table.doTurn();
 			}
 		}
-
-		std::cout << "Greedy computers loses: " << counter[0] + counter[1] + counter[2] + counter[3] + counter[4] << endl;
-		std::cout << "Random computer loses: " << counter[5] << endl;
 	}
+
+	cout << "egc = " << a << ", f = " << af << endl;
+	cout << "gc  = " << b << ", f = " << bf << endl;
+	cout << "rc  = " << c << ", f = " << cf << endl;
+
+
+
 }
 
 
