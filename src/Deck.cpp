@@ -63,11 +63,8 @@ const Card& Deck::getTrump() const {
 	return *trumpCard;
 }
 
+
 void Deck::refill() {
-	refill(re);
-}
-void Deck::refill(std::mt19937& re) {
-	this->re = re;
 	cards.clear();
 	trumpCard = nullptr;
 	fill();

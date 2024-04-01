@@ -17,8 +17,7 @@ public:
 
 	int getCardsCount() const;
 	const Card& getTrump() const;
-	void refill();
-	void refill(std::mt19937& re);
+	void refill(); // too good method
 	void fill();
 	void shuffle();
 	const Card& chooseTrumpCard() const;
