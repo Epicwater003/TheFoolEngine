@@ -21,7 +21,7 @@ public:
 	using iterator = std::list<player_p>::iterator;
 	using c_iterator = std::list<player_p>::const_iterator;
 	std::list<player_p> players;
-	mutable c_iterator order;
+	c_iterator order;
 	Players();
 	iterator begin();
 	iterator end();
@@ -46,6 +46,7 @@ public:
 	std::mt19937 re;
 	std::vector<Players::c_iterator> playersOut;
 	CardSet field;
+	CardSet withdraw;
 	Card attackCard;
 	Card defendCard;
 	Players players;
@@ -61,8 +62,8 @@ public:
 	std::function<void(Players::player_p)> tableLeave;
 
 	// Called: on new game or replay. 
-	// Passes: _1 player, who goes first
-	std::function<void(Players::player_p)> tableNewGame;
+	// Passes: _1 player, who goes first, _2 trump
+	std::function<void(Players::player_p, Card)> tableNewGame;
 
 	// Called: on end of game. 
 	// Passes: _1 optional player, if player exists - it's fool, also game ended in draw
@@ -73,8 +74,8 @@ public:
 	std::function<void(uint32_t, const Deck&, Players::player_p, Players::player_p)> turnBefore;
 	
 	// Called: after every turn. 
-	// Passes: _1 turn, _2 Deck, _3 attacker, _4 defender
-	std::function<void(uint32_t, const Deck&, Players::player_p, Players::player_p)> turnAfter;
+	// Passes: _1 turn, _2 Deck, _3 withdraw
+	std::function<void(uint32_t, const Deck&, CardSet)> turnAfter;
 
 	// Called: on player attack. 
 	// Passes: _1 player, _2 Action, _3 optional card

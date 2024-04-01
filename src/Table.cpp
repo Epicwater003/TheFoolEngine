@@ -13,9 +13,10 @@ void Table::newGame(Seed s) {
 	for (auto player : players) {
 		player->dropCards();
 	}
-
+	
 	re.seed(s);
-	deck.refill(re);
+	
+	deck.refill();
 	deck.shuffle();
 	deck.chooseTrumpCard();
 
@@ -24,8 +25,9 @@ void Table::newGame(Seed s) {
 	}
 
 	players.chooseFistPlayer();
+
 	if (tableNewGame) {
-		tableNewGame(*players.order);
+		tableNewGame(*players.order, deck.getTrump());
 	}
 }
 void Table::doTurn() {
@@ -45,19 +47,20 @@ void Table::doTurn() {
 			player->takeCards(deck);
 		}
 	}
-
+	
 
 	if (turnBefore) {
 		turnBefore(turn, deck, attacker, defender);
 	}
 	// Do turn
-
+	
 	while (true) {
 		// 
+		
 		if (!defender->getCardCount() || (!turn && (defender->getCardCount() == 1))) {
 			break;
 		}
-
+		
 		// Attacker move
 		if (attacker->canIToss(field)) {
 			if (!field.empty() && attacker->pass()) {
@@ -88,6 +91,7 @@ void Table::doTurn() {
 					turnDefend(defender, Player::Action::GiveUp, {});
 				}
 				defender->takeAll(field);
+				field.clear();
 				players.skipPlayerTurn(); // Player skips turn if give up
 				break;
 			}
@@ -105,14 +109,22 @@ void Table::doTurn() {
 				turnDefend(defender, Player::Action::GiveUp, {});
 			}
 			defender->takeAll(field);
+			field.clear();
 			players.skipPlayerTurn(); // Player skips turn if can't defend
 			break;
 		}
 	}
 	//std::cout << " == Turn end == " << std::endl; // TODO: mb don't erase players, just hide em?
 
+	// Clear field. Maybe move to retreat
+	for (auto card : field) {
+		withdraw.push_back(card);
+	}
+	field.clear();
+	++turn;
+
 	if (turnAfter) {
-		turnAfter(turn, deck, attacker, defender);
+		turnAfter(turn, deck, withdraw);
 	}
 
 	if (!deck.getCardsCount()) {
@@ -138,10 +150,7 @@ void Table::doTurn() {
 		playersOut.clear();
 		
 	}
-	// Clear field. Maybe move to retreat
-	field.clear();
-	// Count turns
-	++turn;
+	
 }
 
 //void Table::addPlayer(PlayerType type) {
@@ -159,6 +168,8 @@ bool Table::gameEnd() {
 		if (tableGameEnd) {
 			tableGameEnd(players.players.front());
 		}
+		
+		withdraw.clear();
 		players.players.clear();
 		return true;
 	}
@@ -166,6 +177,8 @@ bool Table::gameEnd() {
 		if (tableGameEnd) {
 			tableGameEnd({});
 		}
+		
+		withdraw.clear();
 		players.players.clear();
 		return true;
 	}
