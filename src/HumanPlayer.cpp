@@ -3,8 +3,8 @@
 namespace thefoolengine {
 
 Card Human::attack() {
-	std::cout << "You can attack with: " << std::endl;
-	viewPossibleToss();
+	std::cout << "Your cards: " << std::endl;
+	viewHand();
 	std::cout << "Input number of card to toss: " << std::endl;
 	int ans;
 	while (true) {
@@ -20,8 +20,8 @@ Card Human::attack() {
 	return c;
 }
 Card Human::defend() {
-	std::cout << "You can defend with: " << std::endl;
-	viewPossibleBeat();
+	std::cout << "Your cards: " << std::endl;
+	viewHand();
 
 	std::cout << "Input number of card to beat: " << std::endl;
 	int ans;
@@ -37,6 +37,9 @@ Card Human::defend() {
 	return c;
 }
 bool Human::pass() {
+	
+	std::cout << "You can attack with: " << std::endl;
+	viewPossibleToss();
 	std::cout << "Pass? y/n: " << std::endl;
 	char ans;
 	bool a;
@@ -57,6 +60,10 @@ bool Human::pass() {
 	return a;
 }
 bool Human::giveUp() {
+	
+	std::cout << "You can defend with: " << std::endl;
+	viewPossibleBeat();
+
 	std::cout << "Give up? y/n: " << std::endl;
 	char ans;
 	bool a;

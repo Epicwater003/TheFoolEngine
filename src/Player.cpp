@@ -85,7 +85,7 @@ int Player::getCardCount() const {
 
 
 void Player::viewHand() const {
-	std::cout << name << " cards: ";
+	//std::cout << name << " cards: ";
 	for (auto& card : hand) {
 		std::cout << card << ", ";
 	}
