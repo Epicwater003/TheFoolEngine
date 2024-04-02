@@ -14,11 +14,13 @@ using namespace thefoolengine;
 int main() {
 	auto seed = random_device()();
 	std::mt19937 re(seed);
-	int a = 0;
-	int b = 0;
+	
 	Table table;
 	auto gc1 = std::make_shared<GreedyComputer>(re);
-	auto gc2 = std::make_shared<GreedyComputer>(re);
+	auto gc2 = std::make_shared<Human>("EpicWater");
+	//auto gc3 = std::make_shared<GreedyComputer>(re);
+	//auto egc1 = std::make_shared<EGreedyComputer>(re);
+	//auto rc1 = std::make_shared<RandomComputer>(re);
 	table.tableNewGame = [](auto player, auto trump) {
 		cout << "Trump is " << trump << endl;
 		cout << "First goes " << player->name << endl;
@@ -45,40 +47,52 @@ int main() {
 		}
 	};
 	table.turnAfter = [&](auto t, auto& deck, auto withdraw) {
-		cout << "Total: " << withdraw.size() << " Cards: ";
-		for (Card& card : withdraw) {
-			cout << card << " ";
-		}
-		cout << endl;
-		a = withdraw.size();
+		cout << "Withdraw: " << withdraw.size() << endl;
 	};
 	table.tableGameEnd = [&](auto player) {
 		if (player) {
-			cout << (*player)->name << " fool! Total: " << (*player)->getCardCount() << " Cards: ";
-			(*player)->viewHand();
-			cout << endl;
-			b = (*player)->getCardCount();
+			cout << (*player)->name << " fool! Cards on hand: " << (*player)->getCardCount() << endl;
 		}
 		else
 		{
-			b = 0;
 			cout << "Game ended in a draw!" << endl;
 		}
 	};
-	for (int i = 0; i < 10000; ++i) {
-		auto seed = random_device()();
-		table.addPlayer(gc1);
-		table.addPlayer(gc2);
-		table.newGame(seed);
-		while (!table.gameEnd())
-		{
-			table.doTurn();
+	/*table.tableLeave = [&](auto player) {
+		
+	};
+	table.tableGameEnd = [&](auto player) {
+		if (!player) {
+			--gc1_n;
+			--gc2_n;
+			--gc3_n;
+			--egc1_n;
+			--rc1_n;
 		}
-		if (a + b != 36) {
-			cout << "Ahtung!!";
-		}
-	}
+		else if (*player == gc1)
+			gc1_n += 1;
+		else if (*player == gc2)
+			gc2_n += 1;
+		else if (*player == gc3)
+			gc3_n += 1;
+		else if (*player == egc1)
+			egc1_n += 1;
+		else if (*player == rc1)
+			rc1_n += 1;
+
+	};*/
 	
+	seed = random_device()();
+	table.addPlayer(gc1);
+	//table.addPlayer(egc1);
+	table.addPlayer(gc2);
+	//table.addPlayer(rc1);
+	//table.addPlayer(gc3);
+	table.newGame(seed);
+	while (!table.gameEnd())
+	{
+		table.doTurn();
+	}
 
 }
 
