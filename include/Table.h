@@ -22,6 +22,7 @@ public:
 	using c_iterator = std::list<player_p>::const_iterator;
 	std::list<player_p> players;
 	c_iterator order;
+	
 	Players();
 	iterator begin();
 	iterator end();
@@ -47,12 +48,11 @@ public:
 	std::vector<Players::c_iterator> playersOut;
 	CardSet field;
 	CardSet withdraw;
-	Card attackCard;
-	Card defendCard;
 	Players players;
 	Seed seed = 0;
 	uint32_t turn = 0;
 	
+	// TODO:: Find a way to bind callbacks with vary number of arguments
 	// Called: on player added. 
 	// Passes: _1 player added
 	std::function<void(Players::player_p)> tablePlayerAdded;
@@ -88,16 +88,12 @@ public:
 	
 
 	Table():
-		deck(re),
-		attackCard(0, Suit::Clover), // TODO: refactor 
-		defendCard(0, Suit::Clover)
+		deck(re)
 	{}
 	Table(std::mt19937& re) :
 		seed(0),
 		re(re),
-		deck(re),
-		attackCard(0, Suit::Clover),
-		defendCard(0, Suit::Clover)
+		deck(re)
 	{}
 
 	

@@ -13,7 +13,12 @@ void Table::newGame(Seed s) {
 	for (auto player : players) {
 		player->dropCards();
 	}
-	
+	// TODO: refactor. this is fix of collision between win rate and order in list. 
+	std::vector<std::reference_wrapper<Players::player_p>> v(players.players.begin(), players.players.end());
+	std::shuffle(v.begin(), v.end(), re);
+	std::list<Players::player_p> l = {v.begin(), v.end()};
+	players.players.swap(l);
+
 	re.seed(s);
 	
 	deck.refill();
@@ -35,11 +40,20 @@ void Table::doTurn() {
 		players.nextPlayerTurn();
 	}
 	
+	
+
 	// Set roles
 	Players::player_p attacker = players.getCurrentPlayer();
 	Players::c_iterator attacker_it = players.curr();
 	Players::player_p defender = players.getNextPlayer();
 	Players::c_iterator defender_it = players.next();
+	std::list<Players::player_p> pitchers = players.players;
+	std::erase_if(pitchers, [&](Players::player_p& p) { return p == defender || p == attacker; });
+	
+	//std::shuffle(pitchers.begin(), pitchers.end(), re); // TODO: ?
+
+	
+	
 
 	// Take cards
 	if (deck.getCardsCount()) {
@@ -56,36 +70,64 @@ void Table::doTurn() {
 	
 	while (true) {
 		// 
-		
+		std::shared_ptr<Card> attackCard;
+		std::shared_ptr<Card> defendCard;
+
 		if (!defender->getCardCount() || (!turn && (defender->getCardCount() == 1))) {
 			break;
 		}
 		
 		// Attacker move
 		if (attacker->canIToss(field)) {
-			if (!field.empty() && attacker->pass()) {
+			
+			if ((!field.empty()) && attacker->pass()) { 
 				if (turnAttack) {
 					turnAttack(attacker, Player::Action::Pass, {});
 				}
 				break;
 			}
 			else {
-				attackCard = attacker->attack();
+				attackCard = std::make_shared<Card>(attacker->attack()); // overhead here. mb create default constructor for Card or flag variable?
 				if (turnAttack) {
-					turnAttack(attacker, Player::Action::Attack, attackCard);
+					turnAttack(attacker, Player::Action::Attack, *attackCard);
 				}
-				field.push_back(attackCard);
+				field.emplace_back(*attackCard);
 			}
 		}
 		else {
-
-			//std::cout << attacker->getName() << " can't attack" << std::endl;
-			break; // there a condition for pitchers
+			
+			if (turn){
+				//std::cout << "p: ";
+				for (auto pitcher : pitchers) {
+					if (pitcher->canIToss(field)) {
+						if (pitcher->pass()) {
+							if (turnAttack) {
+								turnAttack(pitcher, Player::Action::Pass, {});
+							}
+						}
+						else {
+							attackCard = std::make_shared<Card>(pitcher->attack());
+							if (turnAttack) {
+								turnAttack(pitcher, Player::Action::Attack, *attackCard);
+							}
+							field.emplace_back(*attackCard);
+							break;
+						}
+					}
+				}
+				//std::cout << std::endl;
+			}
+			
+			if (!attackCard) {
+				//std::cout << "No attack card after full move; Skip turn;" << std::endl;
+				break;
+			}
+			//break; // there a condition for pitchers
 		}
 		// Pitchers move
 		// TODO: If attacking player cannot make a move, then pitchers go
 		// Defender move
-		if (defender->canIBeat(attackCard)) {
+		if (defender->canIBeat(*attackCard)) {
 			if (defender->giveUp()) {
 				if (turnDefend) {
 					turnDefend(defender, Player::Action::GiveUp, {});
@@ -96,11 +138,11 @@ void Table::doTurn() {
 				break;
 			}
 			else {
-				defendCard = defender->defend();
+				defendCard = std::make_shared<Card>( defender->defend());
 				if (turnDefend) {
-					turnDefend(defender, Player::Action::Defend, defendCard);
+					turnDefend(defender, Player::Action::Defend, *defendCard);
 				}
-				field.push_back(defendCard);
+				field.push_back(*defendCard);
 			}
 		}
 		else {
@@ -116,7 +158,7 @@ void Table::doTurn() {
 	}
 	//std::cout << " == Turn end == " << std::endl; // TODO: mb don't erase players, just hide em?
 
-	// Clear field. Maybe move to retreat
+	// Clear field. Move cards to retreat
 	for (auto card : field) {
 		withdraw.push_back(card);
 	}
