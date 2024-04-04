@@ -9,4 +9,5 @@ target_sources(TheFoolEngine
 		GreedyComputer.cpp
 		EGreedyComputer.cpp
 		RandomComputer.cpp
+		HeuristicsComputer.cpp
 )
