@@ -16,12 +16,22 @@ int main() {
 	std::mt19937 re(seed);
 	
 	Table table;
+	auto h1 = std::make_shared<Human>("EpicWater");
+	auto hec1 = std::make_shared<HeuristicsComputer>(re);
+	auto hec2 = std::make_shared<HeuristicsComputer>(re);
+	auto hec3 = std::make_shared<HeuristicsComputer>(re);
 	auto gc1 = std::make_shared<GreedyComputer>(re);
-	auto gc2 = std::make_shared<Human>("EpicWater");
-	//auto gc3 = std::make_shared<GreedyComputer>(re);
-	//auto egc1 = std::make_shared<EGreedyComputer>(re);
-	//auto rc1 = std::make_shared<RandomComputer>(re);
-	table.tableNewGame = [](auto player, auto trump) {
+	auto gc2 = std::make_shared<GreedyComputer>(re);
+	auto gc3 = std::make_shared<GreedyComputer>(re);
+	auto egc1 = std::make_shared<EGreedyComputer>(re);
+	auto egc2 = std::make_shared<EGreedyComputer>(re);
+	auto egc3 = std::make_shared<EGreedyComputer>(re);
+	auto rc1 = std::make_shared<RandomComputer>(re);
+	auto rc2 = std::make_shared<RandomComputer>(re);
+	auto rc3 = std::make_shared<RandomComputer>(re);
+	
+	
+	/*table.tableNewGame = [](auto player, auto trump) {
 		cout << "Trump is " << trump << endl;
 		cout << "First goes " << player->name << endl;
 	};
@@ -57,43 +67,65 @@ int main() {
 		{
 			cout << "Game ended in a draw!" << endl;
 		}
-	};
-	/*table.tableLeave = [&](auto player) {
+	};*/
+	table.tableLeave = [&](auto player) {
 		
 	};
+	int rc1_n = 0, rc2_n = 0, rc3_n = 0;
+	int gc1_n = 0, gc2_n = 0, gc3_n = 0;
+	int egc1_n = 0, egc2_n = 0, egc3_n = 0;
+	int hec1_n = 0, hec2_n = 0, hec3_n = 0;
 	table.tableGameEnd = [&](auto player) {
 		if (!player) {
 			--gc1_n;
-			--gc2_n;
-			--gc3_n;
-			--egc1_n;
-			--rc1_n;
+			--hec1_n;
 		}
 		else if (*player == gc1)
 			gc1_n += 1;
-		else if (*player == gc2)
-			gc2_n += 1;
-		else if (*player == gc3)
-			gc3_n += 1;
-		else if (*player == egc1)
-			egc1_n += 1;
-		else if (*player == rc1)
-			rc1_n += 1;
+		
+		else if (*player == hec1)
+			hec1_n += 1;
+		
 
-	};*/
-	
-	seed = random_device()();
-	table.addPlayer(gc1);
-	//table.addPlayer(egc1);
-	table.addPlayer(gc2);
-	//table.addPlayer(rc1);
-	//table.addPlayer(gc3);
-	table.newGame(seed);
-	while (!table.gameEnd())
-	{
-		table.doTurn();
+	};
+	float tries = 1000;
+	float win = 0;
+	float cumulative_win = 0;
+	float count = 0;
+	while (true) {
+		for (int i = 0; i < tries; ++i) {
+			seed = random_device()();
+			for (int o = 0; o < 3; ++o) {
+				if ((int)count % 2) {
+					table.addPlayer(gc1);
+					table.addPlayer(hec1);
+				}
+				else {
+					table.addPlayer(hec1);
+					table.addPlayer(gc1);
+				}
+				
+				table.newGame(seed);
+				while (!table.gameEnd())
+				{
+					table.doTurn();
+				}
+			}
+
+		}
+		++count;
+		
+		win = (tries * 3.0 - hec1_n - (tries * 3.0 - (gc1_n + hec1_n))) / (tries * 3.0);
+		cumulative_win += win;
+		cout << "win rate:" << win << endl;
+		cout << "avg win: " << cumulative_win / count << endl;
+		
+		gc1_n = 0;
+		hec1_n = 0;
 	}
+	
 
+	
 }
 
 
