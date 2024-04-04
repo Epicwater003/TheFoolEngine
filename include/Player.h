@@ -88,6 +88,15 @@ public:
 	bool pass()   override;
 	bool giveUp() override;
 };
+class HeuristicsComputer : public Computer {
+public:
+	HeuristicsComputer(std::mt19937& re) : Computer(re) {};
+	Card attack() override;
+	Card defend() override;
+	bool pass()   override;
+	bool giveUp() override;
+	int CardSetWorth(CardSet);
+};
 
 
 }
